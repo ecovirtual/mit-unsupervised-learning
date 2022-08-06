@@ -6,7 +6,7 @@ import em
 
 X = np.loadtxt("toy_data.txt")
 
-#
+# K-Means run
 K = 4
 seed = 4
 
