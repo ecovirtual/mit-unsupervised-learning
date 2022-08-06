@@ -22,10 +22,11 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
 
     for i in range(n):
         for k in range(K):
+            p_k = mixture.p[k]
+            normalization = (1 / ((2 * np.pi * mixture.var[k])**(d / 2)))
             exp = np.exp(-((np.inner((X[i, :] - mixture.mu[k, :]),
                          (X[i, :] - mixture.mu[k, :]))) / (2 * mixture.var[k])))
-            p_x[i, k] = mixture.p[k] * \
-                (1 / ((2 * np.pi * mixture.var[k])**(d / 2))) * exp
+            p_x[i, k] = p_k * normalization * exp
 
     p_theta = p_x.sum(axis=1)
 
