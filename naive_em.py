@@ -48,7 +48,25 @@ def mstep(X: np.ndarray, post: np.ndarray) -> GaussianMixture:
     Returns:
         GaussianMixture: the new gaussian mixture
     """
-    raise NotImplementedError
+    n, d = X.shape
+    _, K = post.shape
+
+    n_k = np.sum(post, axis=0)
+    mu_k = np.dot(post.T, X) / n_k.reshape(-1, 1)
+    p_k = n_k / n
+
+    summation = np.zeros((n, K))
+    for i in range(n):
+        for k in range(K):
+            summation[i, k] = post[i, k] * \
+                np.dot(X[i, :] - mu_k[k, :], X[i, :] - mu_k[k, :])
+
+    final_summation = summation.sum(axis=0)
+
+    var_k = np.divide(final_summation, n_k) / d
+
+    mixture = GaussianMixture(mu_k, var_k, p_k)
+    return mixture
 
 
 def run(X: np.ndarray, mixture: GaussianMixture,
@@ -66,4 +84,11 @@ def run(X: np.ndarray, mixture: GaussianMixture,
             for all components for all examples
         float: log-likelihood of the current assignment
     """
-    raise NotImplementedError
+    old_cost = None
+    new_cost = None
+
+    while (old_cost is None or ((new_cost - old_cost) / abs(new_cost) >= 10**(-6))):
+        old_cost = new_cost
+        post, new_cost = estep(X, mixture)
+        mixture = mstep(X, post)
+    return mixture, post, new_cost
