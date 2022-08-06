@@ -103,5 +103,4 @@ def bic(X: np.ndarray, mixture: GaussianMixture,
     """
     n = X.shape[0]
     free_parameters = mixture.mu.size + mixture.var.size + mixture.p.size - 1
-    print(free_parameters)
     return log_likelihood - 0.5 * free_parameters * np.log(n)
