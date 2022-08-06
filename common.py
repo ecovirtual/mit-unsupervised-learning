@@ -8,8 +8,10 @@ from matplotlib.patches import Circle, Arc
 class GaussianMixture(NamedTuple):
     """Tuple holding a gaussian mixture"""
     mu: np.ndarray  # (K, d) array - each row corresponds to a gaussian component mean
-    var: np.ndarray  # (K, ) array - each row corresponds to the variance of a component
-    p: np.ndarray  # (K, ) array = each row corresponds to the weight of a component
+    # (K, ) array - each row corresponds to the variance of a component
+    var: np.ndarray
+    # (K, ) array = each row corresponds to the weight of a component
+    p: np.ndarray
 
 
 def init(X: np.ndarray, K: int,
@@ -85,6 +87,7 @@ def plot(X: np.ndarray, mixture: GaussianMixture, post: np.ndarray,
 def rmse(X, Y):
     return np.sqrt(np.mean((X - Y)**2))
 
+
 def bic(X: np.ndarray, mixture: GaussianMixture,
         log_likelihood: float) -> float:
     """Computes the Bayesian Information Criterion for a
@@ -98,4 +101,7 @@ def bic(X: np.ndarray, mixture: GaussianMixture,
     Returns:
         float: the BIC for this mixture
     """
-    raise NotImplementedError
+    n = X.shape[0]
+    free_parameters = mixture.mu.size + mixture.var.size + mixture.p.size - 1
+    print(free_parameters)
+    return log_likelihood - 0.5 * free_parameters * np.log(n)
