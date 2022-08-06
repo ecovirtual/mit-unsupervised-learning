@@ -47,16 +47,17 @@ def naive_em_run():
             (mixture, post, cost) = naive_em.run(
                 X=X, mixture=mixture, post=post)
 
-            plot_title = f"Naive EM - K={k} Seed={seed} Cost={cost}"
+            bic = common.bic(X, mixture, cost)
+            plot_title = f"Naive EM - K={k} Seed={seed} Cost={cost} BIC={bic}"
             print(plot_title)
-            common.plot(X=X, mixture=mixture, post=post,
-                        title=plot_title)
+            # common.plot(X=X, mixture=mixture, post=post,
+            #             title=plot_title)
 
 
 def main():
     try:
-        kmeans_run()
-        # naive_em()
+        # kmeans_run()
+        naive_em_run()
     except Exception:
         log_exit(traceback.format_exc())
 
