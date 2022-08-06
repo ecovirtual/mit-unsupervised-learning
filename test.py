@@ -96,10 +96,24 @@ def test_mstep():
         log(red("FAILED"), "M-Step")
 
 
+def test_naive_em():
+    X = np.loadtxt("toy_data.txt")
+    K = 6
+    seed = 0
+
+    (mixture, post) = common.init(X=X, K=K, seed=seed)
+    (mixture, post, new_cost) = naive_em.run(X, mixture, post)
+
+    # print(F"Mixture: {mixture}")
+    # print(F"Post: {post}")
+    print(F"New Cost: {new_cost}")
+
+
 def main():
     try:
         test_estep()
         # test_mstep()
+        test_naive_em()
     except Exception:
         log_exit(traceback.format_exc())
 

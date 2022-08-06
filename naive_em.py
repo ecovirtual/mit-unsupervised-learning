@@ -91,4 +91,5 @@ def run(X: np.ndarray, mixture: GaussianMixture,
         old_cost = new_cost
         post, new_cost = estep(X, mixture)
         mixture = mstep(X, post)
+
     return mixture, post, new_cost
