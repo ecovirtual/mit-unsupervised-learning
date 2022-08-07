@@ -33,9 +33,9 @@ def estep(X: np.ndarray, mixture: GaussianMixture) -> Tuple[np.ndarray, float]:
     min_log_sum = logsumexp(p_x, axis=1, keepdims=True)
 
     post = np.exp(p_x - min_log_sum)
-    LL = np.sum(min_log_sum)
+    ll = np.sum(min_log_sum)
 
-    return post, LL
+    return post, ll
 
 
 def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
@@ -100,7 +100,16 @@ def run(X: np.ndarray, mixture: GaussianMixture,
             for all components for all examples
         float: log-likelihood of the current assignment
     """
-    raise NotImplementedError
+    old_cost = None
+    new_cost = None
+
+    # 10**(-6)
+    while (old_cost is None or ((new_cost - old_cost) / abs(new_cost) >= 1e-16)):
+        old_cost = new_cost
+        post, new_cost = estep(X, mixture)
+        mixture = mstep(X, post, mixture)
+
+    return mixture, post, new_cost
 
 
 def fill_matrix(X: np.ndarray, mixture: GaussianMixture) -> np.ndarray:
