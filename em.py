@@ -57,6 +57,8 @@ def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
     K = mixture.mu.shape[0]
     indicator = X != 0
     mu = mixture.mu
+    n_k = np.sum(post, axis=0)
+    p = n_k / n
 
     for k in range(K):
         for col in range(d):
@@ -78,10 +80,8 @@ def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
             temp[i, k] = np.dot((x_cu - mu_cu), (x_cu - mu_cu)) * post[i, k]
 
     sum = temp.sum(axis=0)
-    var = np.divide(sum, normalizer)
-    var = np.maximum(var, min_variance)
-    n_k = np.sum(post, axis=0)
-    p = n_k / n
+    var = np.maximum((sum / normalizer), min_variance)
+
     return GaussianMixture(mu, var, p)
 
 
