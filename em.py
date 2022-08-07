@@ -53,7 +53,36 @@ def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
     Returns:
         GaussianMixture: the new gaussian mixture
     """
-    raise NotImplementedError
+    n, d = X.shape
+    K = mixture.mu.shape[0]
+    indicator = X != 0
+    mu = mixture.mu
+
+    for k in range(K):
+        for col in range(d):
+            if np.dot(post[:, k], indicator[:, col]) >= 1:
+                mu[k, col] = np.dot(np.multiply(
+                    post[:, k], indicator[:, col]), X[:, col]) / np.dot(post[:, k], indicator[:, col])
+            # else:
+            #     mu[k, col] = mu[k, col]
+
+    normalizer = np.sum(
+        post * np.sum(indicator, axis=1, keepdims=True), axis=0)
+    temp = np.zeros((n, K))
+
+    for i in range(n):
+        for k in range(K):
+            filter = np.where(X[i, :] != 0)
+            x_cu = X[i, :][filter]
+            mu_cu = mu[k, :][filter]
+            temp[i, k] = np.dot((x_cu - mu_cu), (x_cu - mu_cu)) * post[i, k]
+
+    sum = temp.sum(axis=0)
+    var = np.divide(sum, normalizer)
+    var = np.maximum(var, min_variance)
+    n_k = np.sum(post, axis=0)
+    p = n_k / n
+    return GaussianMixture(mu, var, p)
 
 
 def run(X: np.ndarray, mixture: GaussianMixture,
