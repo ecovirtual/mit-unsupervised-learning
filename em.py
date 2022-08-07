@@ -65,8 +65,6 @@ def mstep(X: np.ndarray, post: np.ndarray, mixture: GaussianMixture,
             if np.dot(post[:, k], indicator[:, col]) >= 1:
                 mu[k, col] = np.dot(np.multiply(
                     post[:, k], indicator[:, col]), X[:, col]) / np.dot(post[:, k], indicator[:, col])
-            # else:
-            #     mu[k, col] = mu[k, col]
 
     normalizer = np.sum(
         post * np.sum(indicator, axis=1, keepdims=True), axis=0)
@@ -103,8 +101,7 @@ def run(X: np.ndarray, mixture: GaussianMixture,
     old_cost = None
     new_cost = None
 
-    # 10**(-6)
-    while (old_cost is None or ((new_cost - old_cost) / abs(new_cost) >= 1e-16)):
+    while (old_cost is None or ((new_cost - old_cost) / abs(new_cost) >= 10**(-6))):
         old_cost = new_cost
         post, new_cost = estep(X, mixture)
         mixture = mstep(X, post, mixture)
