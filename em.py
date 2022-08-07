@@ -119,4 +119,32 @@ def fill_matrix(X: np.ndarray, mixture: GaussianMixture) -> np.ndarray:
     Returns
         np.ndarray: a (n, d) array with completed data
     """
-    raise NotImplementedError
+    n, d = X.shape
+    K = mixture.mu.shape[0]
+    p_x = np.zeros((n, K))
+    cu_one_matrix = X != 0
+    dims = np.sum(cu_one_matrix, axis=1)
+
+    for i in range(n):
+        for k in range(K):
+            filter = np.where(X[i, :] != 0)
+            p_x[i, k] = np.log(mixture.p[k] + 1e-16) + (dims[i] / 2) * np.log((1 / ((2 * np.pi * mixture.var[k])))) - ((np.inner(
+                (X[i, :][filter] - mixture.mu[k, :][filter]), (X[i, :][filter] - mixture.mu[k, :][filter]))) / (2 * mixture.var[k]))
+
+    min_log_sum = logsumexp(p_x, axis=1, keepdims=True)
+
+    post = np.exp(p_x - min_log_sum)
+
+    post_sum = np.sum(post, axis=1)
+
+    X_pred = np.zeros((n, d))
+
+    for row in range(n):
+        for col in range(d):
+            if cu_one_matrix[row, col] == 1:
+                X_pred[row, col] = X[row, col]
+            else:
+                X_pred[row, col] = np.dot(
+                    post[row, :], mixture.mu[:, col]) / post_sum[row]
+
+    return X_pred

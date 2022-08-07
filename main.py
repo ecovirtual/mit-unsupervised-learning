@@ -67,9 +67,10 @@ def naive_em_run():
 
 def em_run():
     X = np.loadtxt("netflix_incomplete.txt")
-    K = [12]
+    K = [1, 12]
     seeds = [0, 1, 2, 3, 4]
 
+    all_costs = []
     for k in K:
         for seed in seeds:
             (mixture, post) = common.init(X, k, seed)
@@ -78,14 +79,30 @@ def em_run():
             bic = common.bic(X, mixture, cost)
             plot_title = f"EM - K={k} Seed={seed} Cost={cost} BIC={bic}"
             print(plot_title)
+            all_costs.append(cost)
             # common.plot(X, mixture, post, title=plot_title)
+
+    best_cost = np.max(all_costs)
+    print("Best Cost:", best_cost)
+    return best_cost
+
+
+def compare():
+    X_gold = np.loadtxt('netflix_complete.txt')
+    X = np.loadtxt("netflix_incomplete.txt")
+    (mixture, post) = common.init(X, K=12, seed=1)
+    (mixture, post, cost) = em.run(X, mixture, post)
+    X_pred = em.fill_matrix(X, mixture)
+    result = common.rmse(X_gold, X_pred)
+    print("RMSE: ", result)
 
 
 def main():
     try:
         # kmeans_run()
         # naive_em_run()
-        em_run()
+        # em_run()
+        compare()
     except Exception:
         log_exit(traceback.format_exc())
 
